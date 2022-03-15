@@ -3,11 +3,37 @@ import * as React from 'react'
 import * as ReactDOMServer from 'react-dom/server'
 import { StaticRouter } from 'react-router-dom/server'
 import { ServerStyleSheet } from 'styled-components'
+import { chromium } from 'playwright'
 import App from '../app/App'
+
+let browser
+  //
+;(async () => {
+  browser = await chromium.launch()
+})()
 
 const app = express()
 
 app.use(express.static('dist'))
+
+app.get('/download-image', async (req, res) => {
+  try {
+    const page = await browser.newPage({
+      viewport: {
+        width: 1920,
+        height: 1080,
+      },
+    })
+    await page.goto('http://localhost:9000')
+    const buf = await page.screenshot()
+    await page.close()
+    res.setHeader('Content-Type', 'image/png')
+    res.write(buf)
+    res.end()
+  } catch (e) {
+    res.status(500).send(e.message)
+  }
+})
 
 app.get('*', (req, res) => {
   let app = ''

@@ -33,7 +33,9 @@ const Nav = () => (
   <StyledNav>
     <StyledInner>
       <StyledLogo>My app</StyledLogo>
-      <Button>Button</Button>
+      <a href="/download-image">
+        <Button>Download screenshot</Button>
+      </a>
     </StyledInner>
   </StyledNav>
 )
