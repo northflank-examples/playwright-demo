@@ -3,13 +3,19 @@ import * as React from 'react'
 import * as ReactDOMServer from 'react-dom/server'
 import { StaticRouter } from 'react-router-dom/server'
 import { ServerStyleSheet } from 'styled-components'
-import { chromium } from 'playwright'
+import puppeteer from 'puppeteer'
 import App from '../app/App'
 
 let browser
   //
 ;(async () => {
-  browser = await chromium.launch()
+  browser = await puppeteer.launch({
+    args: ['--no-sandbox', '--disable-dev-shm-usage'],
+    defaultViewport: {
+      width: 1920,
+      height: 1080,
+    },
+  })
 })()
 
 const app = express()
@@ -18,12 +24,7 @@ app.use(express.static('dist'))
 
 app.get('/download-image', async (req, res) => {
   try {
-    const page = await browser.newPage({
-      viewport: {
-        width: 1920,
-        height: 1080,
-      },
-    })
+    const page = await browser.newPage()
     await page.goto('http://localhost:9000')
     const buf = await page.screenshot()
     await page.close()
