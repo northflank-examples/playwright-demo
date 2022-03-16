@@ -24,11 +24,28 @@ app.use(express.static('dist'))
 
 app.get('/download-image', async (req, res) => {
   try {
+    const timings = []
+    const init = Date.now()
+
+    let t0 = init
     const page = await browser.newPage()
+    timings.push(`newPage:${Date.now() - t0}ms`)
+
+    t0 = Date.now()
     await page.goto('http://localhost:9000')
+    timings.push(`goto:${Date.now() - t0}ms`)
+
+    t0 = Date.now()
     const buf = await page.screenshot()
+    timings.push(`screenshot:${Date.now() - t0}ms`)
+
+    t0 = Date.now()
     await page.close()
+    timings.push(`close:${Date.now() - t0}ms`)
+
     res.setHeader('Content-Type', 'image/png')
+    res.setHeader('x-response-time', `${Date.now() - init}ms`)
+    res.setHeader('x-puppeteer-timings', timings.join('; '))
     res.write(buf)
     res.end()
   } catch (e) {
